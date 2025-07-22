@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM template to deploy a Lambda function for message processing
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 5
+    MemorySize: 128
+
+Resources:
+  ProcessMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: processMessage
+      Handler: index.handler
+      CodeUri: dist/
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /process
+            Method: POST
+
+Outputs:
+  FunctionApiUrl:
+    Description: "API Gateway endpoint for processing messages"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/process"

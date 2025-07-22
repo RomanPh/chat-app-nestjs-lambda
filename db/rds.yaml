@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM template to deploy a public MySQL RDS instance for chat application.
+
+Parameters:
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: The master password for the RDS instance
+
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: The ID of the VPC where RDS will be deployed
+
+Resources:
+  ChatSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow MySQL access from anywhere (insecure, for local dev)
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+  ChatDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: chat-db-instance
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      Engine: mysql
+      MasterUsername: admin
+      MasterUserPassword: !Ref DBPassword
+      DBName: chat
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !GetAtt ChatSecurityGroup.GroupId
+      BackupRetentionPeriod: 0
+      DeleteAutomatedBackups: true
+      DeletionProtection: false
+      MultiAZ: false
+      StorageType: gp2
+
+Outputs:
+  RdsEndpoint:
+    Description: "RDS Endpoint"
+    Value: !GetAtt ChatDatabase.Endpoint.Address
+
+  RdsPort:
+    Description: "Port"
+    Value: "3306"
+
+  RdsUsername:
+    Description: "Username"
+    Value: "admin"

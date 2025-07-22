@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    command: npm run start:dev
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: ***REDACTED***
+      DB_PORT: 3306
+      DB_USERNAME: admin
+      DB_PASSWORD: ***REDACTED***
+      DB_NAME: chat
+
+  frontend:
+    image: node:20
+    volumes:
+      - ./public:/app
+    working_dir: /app
+    command: npx serve . -l 3000
+    ports:
+      - "8080:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
