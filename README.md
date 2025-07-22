@@ -159,3 +159,7 @@ docker-compose up
 - [Docker](https://www.docker.com/)
 
 ---
+
+### 📺 Demonstration
+
+File: [`demo/demo.mp4`](demo/demo.mp4)
